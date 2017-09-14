@@ -16,6 +16,43 @@ from django.contrib.auth.hashers import make_password
 from postmark import PMMail
 from django.db.models import Sum, Count
 
+
+
+@csrf_exempt
+def submit_expense(request):
+    """user submits an expense"""
+    #TODO; validate data, user migfht be fake, token might be fake, amount..
+    this_token = request.POST['token']
+    this_user = User.objects.filter(token__token= this_token).get()
+    if 'date' not in request.POST:
+        date = datetime.now()
+    now =datetime.now()
+    Expense.objects.create(user = this_user, amount = request.POST['amount']
+            , text = request.POST['text'],date = now)
+    return JsonResponse({
+        'status' : 'ok'
+    }, encoder=JSONEncoder)
+
+
+@csrf_exempt
+def submit_income(request):
+    """user submits an income"""
+
+    #TODO; validate data, user migfht be fake, token might be fake, amount..
+    #TODO: is the token valid?
+    this_token = request.POST['token']
+    this_user = User.objects.filter(token__token= this_token).get()
+    if 'date' not in request.POST:
+        date = datetime.now()
+    now =datetime.now()
+    Income.objects.create(user = this_user, amount = request.POST['amount']
+            , text = request.POST['text'],date = now)
+
+    return JsonResponse({
+        'status' : 'ok'
+    }, encoder=JSONEncoder)
+
+
 @csrf_exempt
 def generalstat(request):
     #TODO should get a valid duration (from - to), if not, use 1 month
@@ -108,41 +145,3 @@ def register(request):
     else:
         context = {'message': ''}
         return render(request, 'register.html', context)
-
-
-
-
-
-@csrf_exempt
-def submit_expense(request):
-    """user submits an expense"""
-    #TODO; validate data, user migfht be fake, token might be fake, amount..
-    #TODO: is the token valid?
-    this_token = request.POST['token']
-    this_user = User.objects.filter(token__token= this_token).get()
-    if 'date' not in request.POST:
-        date = datetime.now()
-    now =datetime.now()
-    Expense.objects.create(user = this_user, amount = request.POST['amount']
-            , text = request.POST['text'],date = now)
-    return JsonResponse({
-        'status' : 'ok'
-    }, encoder=JSONEncoder)
-
-@csrf_exempt
-def submit_income(request):
-    """user submits an income"""
-
-    #TODO; validate data, user migfht be fake, token might be fake, amount..
-    #TODO: is the token valid?
-    this_token = request.POST['token']
-    this_user = User.objects.filter(token__token= this_token).get()
-    if 'date' not in request.POST:
-        date = datetime.now()
-    now =datetime.now()
-    Income.objects.create(user = this_user, amount = request.POST['amount']
-            , text = request.POST['text'],date = now)
-
-    return JsonResponse({
-        'status' : 'ok'
-    }, encoder=JSONEncoder)
